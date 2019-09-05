@@ -1,0 +1,73 @@
+Distribution of Brazilian Felids - Data Products Course Project
+========================================================
+author: Rodrigo
+date: September 5th, 2019
+autosize: true
+
+Overview
+========================================================
+
+This project is part of the Data Products Course of the John's Hopkins University, available at Coursera.
+
+An application was built, showing occurrences of the Brazilian species of wild felids. That kind of data is used in analysis that bring elements for the conservation of wild animals in Brazil. Some examples of conservaton instruments where this data can be used are:  
+
+- Assesment of the extinction risk of species
+- Action Plans for the conservation of threatened species
+- Management Plans for protected areas
+- Environmental licensing of projects for infrastructure
+
+
+Project Elements
+========================================================
+The project has two elements :
+
+ * an interactive application, made with <span style="font-family:Courier">shiny</span>
+ * the current presentation, built with <span style="font-family:Courier">R Presenter</span>
+ 
+The interactive application is made of an input panel with two dropdown lists. The output contains a map enabling to localize the occurences of Brazilian species of felids. 
+
+The application can be found at the following address :
+<a href="https://rspjorge.shinyapps.io/FelidsInBrazil/" target="_blank">Brazilian Wild Felids</a>. 
+
+The code of the project can be found on GitHub : 
+<a href="https://github.com/rspjorge/DataProductsProjectShiny" target="_blank">Project Source</a>
+
+About the data
+========================================================
+
+
+The occurences of Brazilian species of wild felids were retrieved from the Biodiversity Portal of Brazil:
+
+
+<a href="https://portaldabiodiversidade.icmbio.gov.br/portal/" target="_blank">Biodiversity Portal</a>
+
+
+In the Biodiversity Portal, a search was done for the occurrences of the FELIDAE family, using the filters available there. Then, a csv file containing the geographic coordinates and associated metadata was downloded and a map in the Shiny application was made using Leflet, to show these occurrences. 
+
+Initial Data Processing
+========================================================
+class: small-code
+
+The file Felid.R was created from the csv downloaded, with the following procedures: 
+
+```{r LoadData}
+library(tidyr)
+library(dplyr)
+felids <- read.csv("portalbio_02-09-2019-17-47-42FelidaeThreatened.csv", encoding="UTF-8", sep=";",header=TRUE,stringsAsFactors = FALSE)
+```
+
+```{r RemoveAccentsSpaces}
+# Here accents and spaces were removed from the column names, to make processing easier. 
+col_names <- names(felids)
+#print(col_names)
+new_col_names <- gsub("è","e",gsub("é","e",gsub(".","_",gsub("...","_",col_names,fixed=TRUE),fixed=TRUE),fixed=TRUE),fixed=TRUE)
+Encoding(new_col_names) <- "UTF-8"
+
+colnames(felids) <- new_col_names
+```
+
+```{r ListGenusSpecies}
+# Then we get the list of Genus and Species
+Genus <- felids$Genero %>% unique() %>% sort()
+Species <- felids$Especie %>% unique() %>% sort()
+```
